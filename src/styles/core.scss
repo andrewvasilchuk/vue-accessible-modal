@@ -1,0 +1,51 @@
+$v-modal-holder-padding: 32px !default;
+$v-modal-backdrop-color: rgba(#333, 0.88) !default;
+$v-modal-content-background-color: #fff !default;
+
+:root {
+  --v-modal-holder-padding: #{$v-modal-holder-padding};
+  --v-modal-backdrop-color: #{$v-modal-backdrop-color};
+  --v-modal-content-background-color: #{$v-modal-content-background-color};
+}
+
+.v-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+
+  &__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--v-modal-backdrop-color, $v-modal-backdrop-color);
+  }
+
+  &__inner {
+    display: table;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__holder {
+    display: table-cell;
+    vertical-align: middle;
+    padding: var(--v-modal-holder-padding, $v-modal-holder-padding);
+  }
+
+  &__content {
+    position: relative;
+    background-color: var(
+      --v-modal-content-background-color,
+      $v-modal-content-background-color
+    );
+    margin: {
+      right: auto;
+      left: auto;
+    }
+  }
+}
