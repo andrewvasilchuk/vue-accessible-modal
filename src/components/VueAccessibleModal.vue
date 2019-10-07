@@ -101,9 +101,14 @@ export default {
       this.options = options
     },
     close() {
-      const { lastFocusedElement } = this
+      const { lastFocusedElement, props } = this
+
       if (lastFocusedElement) {
         lastFocusedElement.focus()
+      }
+
+      if (props && props.reject) {
+        props.reject()
       }
 
       this.open = false

@@ -2,6 +2,7 @@
   <section>
     <h1>vue-accessible-modal</h1>
     <button type="button" @click="openModal">Open modal</button>
+    <button type="button" @click="openConfirmModal">Open confirm modal</button>
     <vue-accessible-modal @show="showHandler" @close="closeHandler">
       <template v-slot:backdrop></template>
     </vue-accessible-modal>
@@ -31,6 +32,19 @@ export default {
         },
         transition: 'fade',
       })
+    },
+    openConfirmModal() {
+      this.$modal
+        .confirm('Do you like JavaScript?')
+        .then(val => {
+          console.log(val)
+        })
+        .catch(val => {
+          console.log(val)
+        })
+        .finally(() => {
+          this.$modal.close()
+        })
     },
     showHandler() {
       console.log('show')
