@@ -5,7 +5,10 @@ import ConfirmComponent from './components/ConfirmComponent.vue'
 
 Vue.config.productionTip = false
 
-Vue.use(VueAccessibleModal, { confirmComponent: ConfirmComponent })
+Vue.use(VueAccessibleModal, {
+  confirmComponent: ConfirmComponent,
+  transition: 'fade',
+})
 
 new Vue({
   el: '#app',

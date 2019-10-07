@@ -9,10 +9,11 @@ const Plugin = {
     this.installed = true
     this.event = new Vue()
     this.confirmComponent = options.confirmComponent
+    this.transition = options.transition
 
     Vue.prototype.$modal = {
       show(modal, options = {}) {
-        Plugin.event.$emit('show', modal, options)
+        Plugin.event.$emit('show', modal, Plugin._getOptions(modal, options))
       },
       close() {
         Plugin.event.$emit('close')
@@ -27,12 +28,25 @@ const Plugin = {
           Plugin.event.$emit(
             'show',
             options.component,
-            Object.assign({}, options, { props: { message, resolve, reject } })
+            Object.assign({}, Plugin._getOptions(options.component, options), {
+              props: { message, resolve, reject },
+            })
           )
         })
       },
     }
     Vue.component('VueAccessibleModal', VueAccessibleModal)
+  },
+  _getOptions(component = {}, options = {}) {
+    if (!options.transition) {
+      const hasModalTransition = component.modal && component.modal.transition
+
+      if (!hasModalTransition) {
+        options.transition = this.transition
+      }
+    }
+
+    return options
   },
 }
 
