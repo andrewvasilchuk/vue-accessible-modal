@@ -1,4 +1,15 @@
-import Vue, { VNodeData } from 'vue'
+import Vue, { PluginFunction, VNodeData } from 'vue'
+
+declare const VueAccessibleModal: VueAccessibleModal
+
+export default VueAccessibleModal
+
+export interface VueAccessibleModal {
+  install: PluginFunction<{
+    confirmComponent: Vue
+    transition: string
+  }>
+}
 
 declare module 'vue/types/vue' {
   interface Vue {
