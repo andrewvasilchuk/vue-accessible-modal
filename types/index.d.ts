@@ -18,3 +18,14 @@ declare module 'vue/types/vue' {
     }
   }
 }
+
+declare module 'vue/types/options' {
+  interface ComponentOptions<V extends Vue> {
+    modal?: {
+      classes?: VNodeData['class']
+      label: string
+      attributes?: Record<string, any>
+      transition: string
+    }
+  }
+}
