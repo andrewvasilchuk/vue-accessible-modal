@@ -34,6 +34,7 @@
     "build:css": "node-sass ./src/styles/core.scss ./dist/index.css --output-style compressed -x",
     "dev": "rollup -c build/rollup.config.dev.js --watch",
     "postcss": "postcss ./dist/index.css -u autoprefixer -o ./dist/index.css --no-map",
+    "prepare": "npm run build",
     "test": "jest"
   },
   "dependencies": {},
