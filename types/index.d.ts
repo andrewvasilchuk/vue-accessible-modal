@@ -1,4 +1,4 @@
-import Vue, { PluginFunction, VNodeData } from 'vue'
+import Vue, { PluginFunction, VNodeData, Component} from 'vue'
 
 declare const VueAccessibleModal: VueAccessibleModal
 
@@ -15,7 +15,7 @@ declare module 'vue/types/vue' {
   interface Vue {
     $modal: {
       show(
-        component: Vue,
+        component: Component,
         options?: {
           props?: Vue['$props']
           listeners?: Vue['$listeners']
