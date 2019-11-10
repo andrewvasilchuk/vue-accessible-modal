@@ -37,6 +37,7 @@ export default {
       component: null,
       options: {},
       lastFocusedElement: null,
+      localAttributes: null,
     }
   },
   computed: {
@@ -59,8 +60,14 @@ export default {
       return arr
     },
     attributes() {
-      const { options } = this
-      if (options) return options.attributes
+      const { options, localAttributes } = this
+      if (options) {
+        if (localAttributes) {
+          return Object.assign({}, localAttributes, options.attributes)
+        }
+
+        return options.attributes
+      }
       return {}
     },
     props() {
@@ -156,6 +163,14 @@ export default {
 
       if (focusableElements.length) {
         focusableElements[0].focus()
+      }
+
+      const { modal } = this.$refs.component.$options
+
+      if (modal) {
+        if (modal.attributes) {
+          this.localAttributes = modal.attributes
+        }
       }
     },
   },

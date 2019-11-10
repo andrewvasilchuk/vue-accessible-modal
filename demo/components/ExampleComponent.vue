@@ -40,6 +40,9 @@ export default {
   modal: {
     classes: ['baz', 'poo', { javascript: true, jQuery: false }],
     label: 'Foo bar',
+    attributes: {
+      'data-test': 'foo'
+    }
   },
 }
 </script>
