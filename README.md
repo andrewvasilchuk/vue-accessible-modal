@@ -195,7 +195,6 @@ export default {
     attributes: {
       id: 'baz',
     },
-    transition: 'foo',
   },
 }
 ```

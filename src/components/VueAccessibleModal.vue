@@ -41,11 +41,8 @@ export default {
   },
   computed: {
     transition() {
-      const { component, options } = this
-
-      if (options.transition) return options.transition
-      if (component && component.modal && component.modal.transition)
-        return component.modal.transition
+      const { options } = this
+      return options.transition
     },
     className() {
       const { options, component } = this

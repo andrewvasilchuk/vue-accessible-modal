@@ -38,7 +38,6 @@ export default {
     },
   },
   modal: {
-    transition: 'rotate-in',
     classes: ['baz', 'poo', { javascript: true, jQuery: false }],
     label: 'Foo bar',
   },
