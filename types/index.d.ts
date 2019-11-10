@@ -36,7 +36,6 @@ declare module 'vue/types/options' {
       classes?: VNodeData['class']
       label?: string
       attributes?: Record<string, any>
-      transition?: string
     }
   }
 }
