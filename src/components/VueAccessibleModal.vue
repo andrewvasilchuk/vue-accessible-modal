@@ -17,7 +17,13 @@
       <div class="v-modal__inner">
         <div class="v-modal__holder">
           <div ref="content" class="v-modal__content">
-            <component :is="component" v-bind="props" v-on="listeners" @hook:mounted="mountedHook"></component>
+            <component
+              :is="component"
+              ref="component"
+              v-bind="props"
+              v-on="listeners"
+              @hook:mounted="mountedHook"
+            ></component>
           </div>
         </div>
       </div>
@@ -37,6 +43,8 @@ export default {
       component: null,
       options: {},
       lastFocusedElement: null,
+      localLabel: '',
+      localClasses: null,
       localAttributes: null,
     }
   },
@@ -46,15 +54,15 @@ export default {
       return options.transition
     },
     className() {
-      const { options, component } = this
+      const { options, localClasses } = this
       const arr = ['v-modal']
 
       if (options && options.classes) {
         arr.push(options.classes)
       }
 
-      if (component && component.modal && component.modal.classes) {
-        arr.push(component.modal.classes)
+      if (localClasses) {
+        arr.push(localClasses)
       }
 
       return arr
@@ -81,15 +89,12 @@ export default {
       return {}
     },
     label() {
-      const { component, options } = this
-      return (
-        options.label || (component && component.modal && component.modal.label)
-      )
+      const { options, localLabel } = this
+      return options.label || localLabel
     },
   },
   created() {
     Plugin.event.$on('show', this.show)
-
     Plugin.event.$on('close', this.close)
   },
   methods: {
@@ -116,6 +121,9 @@ export default {
       }
 
       this.open = false
+      this.localLabel = ''
+      this.localClasses = null
+      this.localAttributes = null
     },
     getFocusableElements() {
       const { modal } = this.$refs
@@ -168,6 +176,14 @@ export default {
       const { modal } = this.$refs.component.$options
 
       if (modal) {
+        if (modal.label) {
+          this.localLabel = modal.label
+        }
+
+        if (modal.classes) {
+          this.localClasses = modal.classes
+        }
+
         if (modal.attributes) {
           this.localAttributes = modal.attributes
         }
