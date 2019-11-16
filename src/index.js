@@ -1,52 +1,52 @@
-import VueAccessibleModal from './components/VueAccessibleModal.vue'
+import VueAccessibleModalComponent from './components/VueAccessibleModal.vue'
+import { Show, Close } from './events'
 
+class VueAccessibleModal {
+  constructor(vm) {
+    this._root = vm.$root
+  }
+
+  show(modal, options = {}) {
+    this._root.$emit(Show, modal, options)
+  }
+
+  close() {
+    this._root.$emit(Close)
+  }
+
+  confirm(message, options = {}) {
+    return new Promise((resolve, reject) => {
+      this._root.$emit(
+        Show,
+        options.component,
+        Object.assign({}, options, {
+          props: { message, resolve, reject },
+        })
+      )
+    })
+  }
+}
+
+/**
+ * Plugin install function.
+ * @param {Function} Vue - the Vue constructor.
+ */
 const Plugin = {
   install(Vue, options) {
-    if (this.installed) {
-      return
-    }
+    if (Vue.$_accessibleModalInstalled) return
+    Vue.$_accessibleModalInstalled = true
 
-    this.installed = true
-    this.event = new Vue()
-    this.confirmComponent = options.confirmComponent
-    this.transition = options.transition
-
-    Vue.prototype.$modal = {
-      show(modal, options = {}) {
-        Plugin.event.$emit('show', modal, Plugin._getOptions(modal, options))
+    Vue.mixin({
+      beforeCreate() {
+        this.$modal = new VueAccessibleModal(this, options)
       },
-      close() {
-        Plugin.event.$emit('close')
-      },
-      confirm(message, options = {}) {
-        // if component is not passed pass the default
-        if (!options.component) {
-          options.component = Plugin.confirmComponent
-        }
+    })
 
-        return new Promise((resolve, reject) => {
-          Plugin.event.$emit(
-            'show',
-            options.component,
-            Object.assign({}, Plugin._getOptions(options.component, options), {
-              props: { message, resolve, reject },
-            })
-          )
-        })
-      },
+    Vue.component('VueAccessibleModal', VueAccessibleModalComponent)
+
+    Vue.prototype.$_accessibleModalOptions = {
+      transition: null || options.transition,
     }
-    Vue.component('VueAccessibleModal', VueAccessibleModal)
-  },
-  _getOptions(component = {}, options = {}) {
-    if (!options.transition) {
-      const hasModalTransition = component.modal && component.modal.transition
-
-      if (!hasModalTransition) {
-        options.transition = this.transition
-      }
-    }
-
-    return options
   },
 }
 

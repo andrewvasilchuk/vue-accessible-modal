@@ -11,6 +11,7 @@
 
 <script>
 import ExampleComponent from './components/ExampleComponent.vue'
+import ConfirmComponent from './components/ConfirmComponent.vue'
 
 export default {
   name: 'App',
@@ -30,12 +31,12 @@ export default {
         attributes: {
           id: 'bar',
         },
-        transition: 'fade',
+        // transition: 'fade',
       })
     },
     openConfirmModal() {
       this.$modal
-        .confirm('Do you like JavaScript?')
+        .confirm('Do you like JavaScript?', { component: ConfirmComponent })
         .then(val => {
           console.log(val)
         })

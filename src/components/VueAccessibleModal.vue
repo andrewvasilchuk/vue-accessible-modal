@@ -32,8 +32,8 @@
 </template>
 
 <script>
-import Plugin from '../'
 import focusableElements from '../utils/focusable-elements'
+import { Show, Close } from '../events'
 
 export default {
   name: 'VueAccessibleModal',
@@ -50,8 +50,8 @@ export default {
   },
   computed: {
     transition() {
-      const { options } = this
-      return options.transition
+      const { options, $_accessibleModalOptions } = this
+      return options.transition || $_accessibleModalOptions.transition
     },
     className() {
       const { options, localClasses } = this
@@ -94,8 +94,8 @@ export default {
     },
   },
   created() {
-    Plugin.event.$on('show', this.show)
-    Plugin.event.$on('close', this.close)
+    this.$root.$on(Show, this.show)
+    this.$root.$on(Close, this.close)
   },
   methods: {
     show(component, options) {
