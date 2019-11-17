@@ -1,13 +1,17 @@
 <template>
-  <transition :name="transition" @after-enter="$emit('show')" @after-leave="$emit('close')">
+  <transition
+    :name="transition"
+    @after-enter="$emit('show')"
+    @after-leave="$emit('close')"
+  >
     <div
       v-if="open"
       ref="modal"
       v-bind="attributes"
+      :aria-label="label"
       :class="className"
       role="dialog"
       aria-modal="true"
-      :aria-label="label"
       @keyup.esc="close"
       @keydown.tab="focusHandler"
     >
@@ -31,119 +35,184 @@
   </transition>
 </template>
 
-<script>
+<script lang="ts">
+import Vue, { Component } from 'vue'
 import focusableElements from '../utils/focusable-elements'
-import { Show, Close } from '../events'
+import Events from '../events/index'
+import {
+  VueAccessibleModalOptions,
+  VueAccessibleModalComponentOptions,
+  VueAccessibleModalMethodOptions,
+} from '../../types'
 
-export default {
+type ConstructorParameters<T> = T extends new (...args: infer U) => any
+  ? U
+  : never
+
+type PromiseConstructorParameter = ConstructorParameters<typeof Promise>[0]
+
+type ResolveReject = {
+  resolve: Parameters<PromiseConstructorParameter>[0]
+  reject: Parameters<PromiseConstructorParameter>[1]
+}
+
+interface IData {
+  open: boolean
+  options: VueAccessibleModalMethodOptions | null
+  component: Component | null
+  componentOptions: VueAccessibleModalComponentOptions | null
+  lastFocusedElement: HTMLElement | null
+  confirmMessage: string | undefined
+  resolveReject: ResolveReject | null
+}
+
+export default Vue.extend({
   name: 'VueAccessibleModal',
-  data() {
+
+  data(): IData {
     return {
       open: false,
+      options: null,
       component: null,
-      options: {},
+      componentOptions: null,
       lastFocusedElement: null,
-      localLabel: '',
-      localClasses: null,
-      localAttributes: null,
+      confirmMessage: undefined,
+      resolveReject: null,
     }
   },
+
   computed: {
-    transition() {
+    transition(): string | undefined {
       const { options, $_accessibleModalOptions } = this
-      return options.transition || $_accessibleModalOptions.transition
+      if (options && options.transition) {
+        return options.transition
+      }
+
+      return $_accessibleModalOptions.transition
     },
     className() {
-      const { options, localClasses } = this
+      const { options, componentOptions } = this
       const arr = ['v-modal']
 
       if (options && options.classes) {
         arr.push(options.classes)
       }
 
-      if (localClasses) {
-        arr.push(localClasses)
+      if (componentOptions && componentOptions.classes) {
+        arr.push(componentOptions.classes)
       }
 
       return arr
     },
     attributes() {
-      const { options, localAttributes } = this
-      if (options) {
-        if (localAttributes) {
-          return Object.assign({}, localAttributes, options.attributes)
-        }
+      const { options, componentOptions } = this
 
-        return options.attributes
+      const obj = {}
+
+      if (options && typeof options.attributes === 'object') {
+        Object.assign(obj, options.attributes)
       }
-      return {}
+
+      if (componentOptions && typeof componentOptions.attributes === 'object') {
+        Object.assign(obj, componentOptions.attributes)
+      }
+
+      return obj
     },
     props() {
-      const { options } = this
-      if (options) return options.props
-      return {}
-    },
-    listeners() {
-      const { options } = this
-      if (options) return options.listeners
-      return {}
-    },
-    label() {
-      const { options, localLabel } = this
-      return options.label || localLabel
-    },
-  },
-  created() {
-    this.$root.$on(Show, this.show)
-    this.$root.$on(Close, this.close)
-  },
-  methods: {
-    show(component, options) {
-      const { activeElement } = document
+      const { options, confirmMessage, resolveReject } = this
 
+      const obj = {}
+
+      if (options && typeof options.props === 'object')
+        Object.assign(obj, options.props)
+      if (resolveReject) Object.assign(obj, resolveReject)
+      if (confirmMessage) Object.assign(obj, { message: confirmMessage })
+
+      return obj
+    },
+    listeners(): VueAccessibleModalOptions['listeners'] | {} {
+      const { options } = this
+
+      if (options && typeof options.listeners === 'object')
+        return options.listeners
+      return {}
+    },
+    label(): string | undefined {
+      const { options, componentOptions } = this
+
+      if (options && options.label) return options.label
+      if (componentOptions && componentOptions.label)
+        return componentOptions.label
+    },
+  },
+
+  created() {
+    this.$root.$on(Events.Show, this.show)
+    this.$root.$on(Events.Confirm, this.confirm)
+    this.$root.$on(Events.Close, this.close)
+  },
+
+  methods: {
+    boot(component: Component, options?: VueAccessibleModalMethodOptions) {
+      this.component = component
+      this.options = options || null
+
+      const { activeElement } = document
       if (activeElement) {
-        this.lastFocusedElement = activeElement
+        this.lastFocusedElement = activeElement as HTMLElement
       }
 
-      this.open = true
-      this.component = component
-      this.options = options
+      this.$nextTick(() => {
+        this.open = true
+      })
     },
+
+    show(component: Component, options?: VueAccessibleModalMethodOptions) {
+      this.boot(component, options)
+    },
+
+    confirm<T>(
+      component: Component,
+      message: string,
+      resolveReject: ResolveReject,
+      options?: VueAccessibleModalMethodOptions
+    ) {
+      this.confirmMessage = message
+      this.resolveReject = resolveReject
+
+      this.boot(component, options)
+    },
+
     close() {
-      const { lastFocusedElement, props } = this
+      const { lastFocusedElement, resolveReject, props } = this
 
       if (lastFocusedElement) {
         lastFocusedElement.focus()
       }
 
-      if (props && props.reject) {
-        props.reject()
+      if (resolveReject) {
+        resolveReject.reject()
       }
 
       this.open = false
-      this.localLabel = ''
-      this.localClasses = null
-      this.localAttributes = null
+      this.componentOptions = null
     },
+
     getFocusableElements() {
       const { modal } = this.$refs
-      if (modal) {
-        const elements = modal.querySelectorAll(focusableElements)
 
-        if (elements) {
-          // return only visible elements (e.g. display !== none)
+      const elements = (modal as Element).querySelectorAll<HTMLElement>(
+        focusableElements
+      )
 
-          return Array.prototype.slice
-            .call(elements)
-            .filter(element => element.offsetParent !== null)
-        } else {
-          return []
-        }
-      }
-
-      return []
+      // return only visible elements (e.g. display !== none)
+      return Array.from(elements).filter(
+        element => element.offsetParent !== null
+      )
     },
-    focusHandler(e) {
+
+    focusHandler(e: KeyboardEvent) {
       const { activeElement } = document
 
       const focusableElements = this.getFocusableElements()
@@ -166,29 +235,20 @@ export default {
         element.focus()
       }
     },
-    mountedHook(e) {
+
+    mountedHook() {
       const focusableElements = this.getFocusableElements()
 
-      if (focusableElements.length) {
+      if (focusableElements.length !== 0) {
         focusableElements[0].focus()
       }
 
-      const { modal } = this.$refs.component.$options
+      const { modal } = (this.$refs.component as Vue).$options
 
-      if (modal) {
-        if (modal.label) {
-          this.localLabel = modal.label
-        }
-
-        if (modal.classes) {
-          this.localClasses = modal.classes
-        }
-
-        if (modal.attributes) {
-          this.localAttributes = modal.attributes
-        }
+      if (modal !== undefined) {
+        this.componentOptions = modal
       }
     },
   },
-}
+})
 </script>

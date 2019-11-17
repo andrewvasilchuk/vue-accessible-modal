@@ -8,16 +8,18 @@
     <button type="button" @click="closeModal">Close modal</button>
     <textarea></textarea>
     <textarea disabled></textarea>
-    <input type="text">
-    <input type="text" disabled>
+    <input type="text" />
+    <input type="text" disabled />
     <div tabindex="0">Focus</div>
     <button type="button" style="display:none;">Button</button>
     <button type="button" style="display:none;">Button</button>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   name: 'ExampleComponent',
   props: {
     foo: {
@@ -41,10 +43,10 @@ export default {
     classes: ['baz', 'poo', { javascript: true, jQuery: false }],
     label: 'Foo bar',
     attributes: {
-      'data-test': 'foo'
-    }
+      'data-test': 'foo',
+    },
   },
-}
+})
 </script>
 
 <style>

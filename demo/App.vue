@@ -9,15 +9,13 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import ExampleComponent from './components/ExampleComponent.vue'
 import ConfirmComponent from './components/ConfirmComponent.vue'
 
-export default {
+export default Vue.extend({
   name: 'App',
-  data() {
-    return {}
-  },
   methods: {
     openModal() {
       this.$modal.show(ExampleComponent, {
@@ -25,18 +23,18 @@ export default {
           foo: 'foo',
           bar: 'bar',
         },
-        listeners: { submit: data => console.log(data) },
+        listeners: { submit: (data: object) => console.log(data) },
         label: 'Modal',
         classes: 'foo bar',
         attributes: {
           id: 'bar',
         },
-        // transition: 'fade',
+        transition: 'rotate-in',
       })
     },
     openConfirmModal() {
       this.$modal
-        .confirm('Do you like JavaScript?', { component: ConfirmComponent })
+        .confirm<string>(ConfirmComponent, 'Do you like JavaScript?')
         .then(val => {
           console.log(val)
         })
@@ -54,7 +52,7 @@ export default {
       console.log('close')
     },
   },
-}
+})
 </script>
 
 <style lang="scss">

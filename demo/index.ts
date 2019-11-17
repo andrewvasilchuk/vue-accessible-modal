@@ -4,9 +4,7 @@ import VueAccessibleModal from '../src'
 
 Vue.config.productionTip = false
 
-Vue.use(VueAccessibleModal, {
-  transition: 'fade',
-})
+Vue.use(VueAccessibleModal, { transition: 'fade' })
 
 new Vue({
   el: '#app',

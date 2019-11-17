@@ -1,48 +1,57 @@
 import path from 'path'
-import vue from 'rollup-plugin-vue'
-import { terser } from 'rollup-plugin-terser'
+import typescript from 'rollup-plugin-typescript2'
 import replace from 'rollup-plugin-replace'
-import resolve from 'rollup-plugin-node-resolve'
-import common from 'rollup-plugin-commonjs'
+import { terser } from 'rollup-plugin-terser'
 
+import typescriptPluginOptions from './base/plugins/typescript'
+import basePlugins from './base/plugins/index'
+
+const SOURCE = path.join(__dirname, '../src/index.ts')
+const DIST_DIR = 'dist'
+const FILE_NAME = 'vue-accessible-modal'
 const name = 'VueAccessibleModal'
+const external = ['vue']
 const plugins = [
   replace({
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
-  resolve(),
-  common(),
-  vue(),
-  terser(),
-]
+].concat(basePlugins)
 
+/** @type {import('rollup').RollupOptions} */
 export default [
   {
-    input: path.join(__dirname, '..', 'src', 'index.js'),
+    input: SOURCE,
+    external,
     output: [
       {
-        file: 'dist/vue-accessible-modal.js',
+        file: `${DIST_DIR}/${FILE_NAME}.js`,
         format: 'umd',
         name,
       },
       {
-        file: 'dist/vue-accessible-modal.common.js',
+        file: `${DIST_DIR}/${FILE_NAME}.common.js`,
         format: 'cjs',
       },
       {
-        file: 'dist/vue-accessible-modal.esm.js',
+        file: `${DIST_DIR}/${FILE_NAME}.esm.js`,
         format: 'esm',
       },
     ],
-    plugins,
+    plugins: [
+      typescript(Object.assign({}, typescriptPluginOptions, { tsconfig: './tsconfig.prod.json'})),
+    ].concat(plugins),
   },
   {
-    input: path.join(__dirname, '..', 'src', 'index.js'),
+    input: SOURCE,
+    external,
     output: {
-      file: 'dist/vue-accessible-modal.min.js',
+      file: `${DIST_DIR}/${FILE_NAME}.min.js`,
       format: 'umd',
       name,
     },
-    plugins,
+    plugins: [
+      typescript(Object.assign({}, typescriptPluginOptions, { tsconfig: './tsconfig.prod.umd.json'})),
+      terser()
+    ].concat(plugins),
   },
 ]
