@@ -27,10 +27,10 @@ export default Vue.extend({
   },
   methods: {
     resolveHandler() {
-      this.resolve('foo')
+      this.resolve({ success: true, value: 'User likes Javascript' })
     },
     rejectHandler() {
-      this.reject('bar')
+      this.reject({ success: false, value: 'User dislikes Javascript' })
     },
   },
 })

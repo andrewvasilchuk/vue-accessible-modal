@@ -29,7 +29,7 @@ export default Vue.extend({
         attributes: {
           id: 'bar',
         },
-        transition: 'rotate-in',
+        // transition: 'rotate-in',
       })
     },
     openConfirmModal() {
@@ -46,10 +46,10 @@ export default Vue.extend({
         })
     },
     showHandler() {
-      console.log('show')
+      console.log("[vue-accessible-modal EMIT]: show");
     },
     closeHandler() {
-      console.log('close')
+      console.log("[vue-accessible-modal EMIT]: close");
     },
   },
 })
@@ -66,15 +66,11 @@ export default Vue.extend({
   opacity: 0;
 }
 
-.rotate-in-enter-active,
+/* .rotate-in-enter-active,
 .rotate-in-leave-active {
   transition: transform 0.48s;
 }
-.rotate-in-enter, .rotate-in-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.rotate-in-enter, .rotate-in-leave-to {
   transform: rotate3d(0, 0, 1, -192deg);
-}
-
-button:focus {
-  background: red;
-}
+} */
 </style>
