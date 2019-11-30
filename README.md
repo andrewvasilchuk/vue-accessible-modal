@@ -2,7 +2,25 @@
 
 > Vue.js component for accessible modals.
 
-## ✨ Features
+- [vue-accessible-modal](#vue-accessible-modal)
+  - [Features](#features)
+  - [Demo](#demo)
+  - [Installation](#installation)
+    - [Via NPM](#via-npm)
+    - [Via Yarn](#via-yarn)
+  - [Initialization](#initialization)
+    - [As a plugin](#as-a-plugin)
+  - [Usage](#usage)
+    - [Template](#template)
+    - [Styles](#styles)
+    - [API](#api)
+    - [Emitted events](#emitted-events)
+      - [Example of subscribing to events](#example-of-subscribing-to-events)
+    - [Example of possible usage of the library](#example-of-possible-usage-of-the-library)
+  - [Powered by](#powered-by)
+  - [License](#license)
+
+## Features
 
 - 📟 fully accessible to screen readers;
 - ⌨️ supports keyboard navigation;
@@ -14,7 +32,7 @@
 
 [![Edit vue-accessible-modal](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/vue-accessible-modal-9m474?fontsize=14)
 
-## 💿 Installation
+## Installation
 
 ### Via NPM
 
@@ -38,14 +56,19 @@ It must be called before `new Vue()`.
 import Vue from 'vue'
 import VueAccessibleModal from 'vue-accessible-modal'
 
-Vue.use(VueAccessibleModal)
+// optional options
+const options = {
+  transition: 'fade',
+}
+
+Vue.use(VueAccessibleModal, options)
 ```
 
-## 🚀 Usage
+## Usage
 
 ### Template
 
-First off you should insert the `<vue-accessible-modal />` component into your `template`:
+First off you should insert the `<vue-accessible-modal />` component into your `template`, this is where your modals will be rendered:
 
 ```html
 <template>
@@ -53,7 +76,7 @@ First off you should insert the `<vue-accessible-modal />` component into your `
 </template>
 ```
 
-### 🎨 Styles
+### Styles
 
 Then don't forget to include core styles:
 
@@ -95,11 +118,11 @@ And [`CSS` custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/-
 
 > 🌈 The main purpose of the library is just to give you a simple wrapper over your modal components that makes them accessible and provide you with simple **show**/**close** API over them.
 
-When you install the plugin it provides `$modal` property into the `Vue.prototype`, so you can **show** or **close** modals through `this.$modal.show()` or `this.$modal.close()` methods appropriately.
+When you install the plugin it injects `$modal` property into each component during `beforeCreate` hook, so you can **show** or **close** modals through `this.$modal.show` or `this.$modal.close` methods appropriately.
 
 > ⚠️ Note that your modal component should contain at least one focusable element to set focus on. There should be at least one button that closes the dialog `<button @click="$modal.close()">Close dialog</button>`.
 
-`$modal.show(component: VueComponent, options: object)` method accepts two arguments:
+`$modal.show(component: VueComponent, options?: object)` method accepts two arguments:
 
 1. `component`: Vue.js component you want to display in the modal.
 2. `options`: object through which you can customize the behaviour of the modal.
@@ -130,9 +153,87 @@ When you install the plugin it provides `$modal` property into the `Vue.prototyp
 }
 ```
 
-To close modal from any place you should use `this.$modal.close()` method.
+To close modal from anywhere in your app you should call `this.$modal.close()` method.
 
-### ⬆ Emitted events
+> 🆕 Support version 0.4.0
+
+Since version `0.4.0` you can use `vue-accessible-modal` to confirm user actions.
+`this.$modal.confirm(component: VueComponent, message: string, options?: object)` accepts tha same arguments as the `$modal.show` method, but the second argument is message (the value that will be passed to your component as `message` prop).
+
+Your confirm component should accept three props: `message` , `resolve` and `reject` (since `$modal.confirm` leverages `Promise`).
+
+Bellow is the example of usage of `$modal.confirm`:
+
+`ConfirmComponent.vue`:
+
+```html
+<template>
+  <section>
+    <h1>{{ message }}</h1>
+    <button type="button" @click="resolveHandler">Resolve</button>
+    <button type="button" @click="rejectHandler">Reject</button>
+  </section>
+</template>
+```
+
+```ts
+import Vue from 'vue'
+
+export default Vue.extend({
+  name: 'ConfirmComponent',
+  // required props
+  props: {
+    message: {
+      type: String,
+      required: true,
+    },
+    resolve: {
+      type: Function,
+      required: true,
+    },
+    reject: {
+      type: Function,
+      required: true,
+    },
+  },
+  methods: {
+    resolveHandler() {
+      // this value will be passed to `then`
+      this.resolve('foo')
+    },
+    rejectHandler() {
+      // this value will be passed to `catch`
+      this.reject('bar')
+    },
+  },
+})
+```
+
+```ts
+import ConfirmComponent from 'path/to/confirm/component'
+
+export default {
+  // ...
+  methods: {
+    confirm() {
+      this.$modal
+        .confirm(ConfirmComponent, 'Do you like JavaScript?')
+        .then(val => {
+          console.log(val)
+        })
+        .catch(val => {
+          console.log(val)
+        })
+        .finally(() => {
+          this.$modal.close()
+        })
+    },
+  },
+  // ...
+}
+```
+
+### Emitted events
 
 `<vue-accessible-modal>` component emits some events you can subscribe to:
 
@@ -199,16 +300,19 @@ export default {
 }
 ```
 
-This gives you a convenient way of providing custom `transition`, `classes` and `attributes` per modal component.
+This gives you a convenient way of providing custom `classes`, `label` and `attributes` specific to modal component.
 
-> ⚠️ Notice that values provided via `options` object will take precedence over values provided via component's `modal` property.
+> ⚠️ Notice that values provided via `options` in object will take precedence over values provided via component's `modal` property.
 
 ## Powered by
 
 - `Vue.js`;
+- `Typescript`;
 - `Rollup` (and plugins);
-- `SASS`.
+- `SASS`;
+- `PostCSS`;
+- `Autoprefixer`;
 
-## 🔒 License
+## License
 
 [MIT](http://opensource.org/licenses/MIT)
