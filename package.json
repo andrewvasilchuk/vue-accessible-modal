@@ -52,7 +52,7 @@
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-typescript2": "^0.25.2",
-    "rollup-plugin-vue": "^4.2.0",
+    "rollup-plugin-vue": "^6.0.0",
     "tslib": "^1.10.0",
     "typescript": "^3.7.2",
     "vue": "^2.6.10",
